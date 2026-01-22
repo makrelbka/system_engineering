@@ -1,0 +1,91 @@
+' ============================================
+' Sequence: Обработка заказа администратором
+' Лаба 4 - Sequence диаграммы
+'
+' ЧТО ДЕЛАЕТ: Показывает взаимодействие компонентов при работе администратора
+' с заказами. Описывает авторизацию, получение списка заказов, изменение статусов.
+'
+' ЗАЧЕМ НУЖНА: Показывает техническую реализацию админ-панели. Видно, какие
+' API-эндпоинты вызываются, как происходит авторизация, как обновляются статусы в БД.
+' ============================================
+
+@startuml Sequence_Order_Processing
+title Sequence: Обработка заказа администратором
+
+actor "Администратор" as Admin
+participant "Frontend (Admin Panel)" as AdminPanel
+participant "Backend (Spring Boot)" as Backend
+participant "AdminService" as AdminService
+participant "OrderService" as OrderService
+database "PostgreSQL" as DB
+
+Admin -> AdminPanel: 1. Вход в админ-панель (/admin)
+Admin -> AdminPanel: 2. Ввод логина/пароля
+
+AdminPanel -> Backend: POST /api/admin/login
+activate Backend
+
+Backend -> AdminService: authenticate(email, password)
+activate AdminService
+AdminService -> DB: SELECT * FROM users WHERE email = ?
+DB --> AdminService: User data
+AdminService -> AdminService: Проверка пароля и роли ADMIN
+AdminService --> Backend: User (если валиден)
+deactivate AdminService
+
+Backend --> AdminPanel: 200 OK + User data
+AdminPanel -> AdminPanel: Сохранение в localStorage
+
+deactivate Backend
+
+AdminPanel -> Backend: GET /api/admin/orders/pending
+activate Backend
+Backend -> AdminService: getPendingOrders()
+activate AdminService
+AdminService -> DB: SELECT * FROM orders WHERE status = 'NEW'
+DB --> AdminService: List<Order>
+AdminService --> Backend: List<Order>
+deactivate AdminService
+Backend --> AdminPanel: 200 OK + Orders list
+deactivate Backend
+
+AdminPanel -> Admin: 3. Отображение списка заказов
+
+Admin -> AdminPanel: 4. Изменить статус заказа (id=123)
+AdminPanel -> Backend: PUT /api/admin/orders/123/status
+note right
+  Body: { "status": "IN_PROCESS" }
+end note
+activate Backend
+
+Backend -> AdminService: updateOrderStatus(123, "IN_PROCESS")
+activate AdminService
+AdminService -> DB: UPDATE orders SET status = ? WHERE id = ?
+DB --> AdminService: Updated
+AdminService --> Backend: Success
+deactivate AdminService
+
+Backend --> AdminPanel: 200 OK
+deactivate Backend
+
+AdminPanel -> Admin: 5. Статус обновлен
+
+Admin -> AdminPanel: 6. Пометить заказ как "Выполнен"
+AdminPanel -> Backend: PUT /api/admin/orders/123/status
+note right
+  Body: { "status": "COMPLETED" }
+end note
+activate Backend
+
+Backend -> AdminService: updateOrderStatus(123, "COMPLETED")
+activate AdminService
+AdminService -> DB: UPDATE orders SET status = 'COMPLETED' WHERE id = 123
+DB --> AdminService: Updated
+AdminService --> Backend: Success
+deactivate AdminService
+
+Backend --> AdminPanel: 200 OK
+deactivate Backend
+
+AdminPanel -> Admin: 7. Заказ перемещен в "Выполненные"
+@enduml

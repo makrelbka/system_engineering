@@ -1,0 +1,77 @@
+// База данных FlowerShop
+// Формат dbdiagram.io для визуализации схемы БД
+
+Table users {
+  id bigint [pk, increment]
+  email varchar(255) [not null, unique]
+  password varchar(255) [not null]
+  name varchar(255) [not null]
+  phone varchar(255)
+  role varchar(20) [not null, default: 'CLIENT']
+  
+  Note: 'Таблица пользователей системы. Роли: CLIENT, ADMIN'
+}
+
+Table categories {
+  id bigint [pk, increment]
+  name varchar(255) [not null, unique]
+  description text
+  
+  Note: 'Таблица категорий товаров (букетов)'
+}
+
+Table products {
+  id bigint [pk, increment]
+  name varchar(255) [not null]
+  price decimal(10,2) [not null]
+  description text
+  image varchar(500)
+  stock integer [not null, default: 0]
+  category_id bigint
+  
+  Note: 'Таблица товаров (букетов). stock - количество в наличии'
+}
+
+Table orders {
+  id bigint [pk, increment]
+  user_id bigint
+  customer_name varchar(255) [not null]
+  customer_email varchar(255) [not null]
+  customer_phone varchar(255) [not null]
+  delivery_address varchar(500) [not null]
+  status varchar(20) [not null, default: 'NEW']
+  total_price decimal(10,2) [not null]
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  
+  Note: 'Таблица заказов. Статусы: NEW, IN_PROCESS, DELIVERING, COMPLETED, CANCELLED'
+}
+
+Table order_items {
+  id bigint [pk, increment]
+  order_id bigint [not null]
+  product_id bigint [not null]
+  quantity integer [not null]
+  price decimal(10,2) [not null]
+  
+  Note: 'Таблица элементов заказа. price - цена на момент заказа'
+}
+
+Table callback_requests {
+  id bigint [pk, increment]
+  name varchar(255) [not null]
+  phone varchar(255) [not null]
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  completed boolean [not null, default: false]
+  
+  Note: 'Таблица заявок на обратный звонок'
+}
+
+// ===================== //
+//        Relations       //
+// ===================== //
+
+Ref: categories.id > products.category_id [delete: set null]
+Ref: users.id > orders.user_id [delete: set null]
+Ref: orders.id > order_items.order_id [delete: cascade]
+Ref: products.id > order_items.product_id [delete: restrict]
+

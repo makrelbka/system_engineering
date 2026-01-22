@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -25,6 +27,7 @@ public class ProductService {
     
     @PostConstruct
     public void logInitialStock() {
+        ensureLogFile();
         List<Product> products = productRepository.findAll();
         String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         StringBuilder logLine = new StringBuilder();
@@ -77,6 +80,7 @@ public class ProductService {
     
     private void writeLogLine(String logLine) {
         try {
+            ensureLogFile();
             try (PrintWriter writer = new PrintWriter(new FileWriter(LOG_FILE, true))) {
                 writer.print(logLine);
                 if (!logLine.endsWith("\n")) {
@@ -85,6 +89,17 @@ public class ProductService {
             }
         } catch (IOException e) {
             // Игнорируем ошибки записи
+        }
+    }
+
+    private void ensureLogFile() {
+        try {
+            Path logPath = Path.of(LOG_FILE);
+            Files.createDirectories(logPath.getParent());
+            if (!Files.exists(logPath)) {
+                Files.createFile(logPath);
+            }
+        } catch (IOException ignored) {
         }
     }
 }

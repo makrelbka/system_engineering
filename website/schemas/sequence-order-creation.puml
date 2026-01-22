@@ -1,0 +1,78 @@
+' ============================================
+' Sequence: Оформление заказа клиентом
+' Лаба 4 - Sequence диаграммы
+'
+' ЧТО ДЕЛАЕТ: Показывает взаимодействие компонентов системы при оформлении заказа.
+' Описывает последовательность вызовов: Клиент → Frontend → Backend → Services → Database.
+'
+' ЗАЧЕМ НУЖНА: Показывает техническую реализацию процесса. Преподаватель видит,
+' как компоненты взаимодействуют друг с другом, какие запросы делаются к БД,
+' какие методы вызываются.
+' ============================================
+
+@startuml Sequence_Order_Creation
+title Sequence: Оформление заказа клиентом
+
+actor "Клиент" as Client
+participant "Frontend (Vue)" as Frontend
+participant "Backend (Spring Boot)" as Backend
+participant "ProductService" as ProductService
+participant "OrderService" as OrderService
+database "PostgreSQL" as DB
+
+Client -> Frontend: 1. Добавить товары в корзину
+Frontend -> Frontend: Сохранение в localStorage
+
+Client -> Frontend: 2. Нажать "Оформить заказ"
+Frontend -> Frontend: Переход на /checkout
+
+Client -> Frontend: 3. Заполнить контактные данные
+note right
+  - Имя
+  - Email
+  - Телефон
+  - Адрес доставки
+end note
+
+Client -> Frontend: 4. Нажать "Оформить заказ"
+
+Frontend -> Backend: POST /api/orders
+activate Backend
+
+Backend -> OrderService: createOrder()
+activate OrderService
+
+OrderService -> ProductService: Проверка наличия товара
+activate ProductService
+ProductService -> DB: SELECT stock FROM products WHERE id = ?
+DB --> ProductService: Возврат stock
+deactivate ProductService
+
+alt Товар в наличии
+  OrderService -> ProductService: decreaseStock()
+  activate ProductService
+  ProductService -> DB: UPDATE products SET stock = stock - quantity
+  ProductService -> ProductService: Логирование покупки
+  deactivate ProductService
+  
+  OrderService -> DB: INSERT INTO orders
+  OrderService -> DB: INSERT INTO order_items
+  
+  OrderService --> Backend: Order created
+  deactivate OrderService
+  
+  Backend --> Frontend: 201 Created + Order data
+  
+  Frontend -> Frontend: Очистка корзины
+  Frontend -> Frontend: Показ сообщения "Ждите звонка"
+  
+  Client -> Frontend: 5. Видит подтверждение заказа
+else Товар не в наличии
+  OrderService --> Backend: Error: Недостаточно товара
+  deactivate OrderService
+  Backend --> Frontend: 400 Bad Request
+  Frontend -> Client: Отображение ошибки
+end
+
+deactivate Backend
+@enduml

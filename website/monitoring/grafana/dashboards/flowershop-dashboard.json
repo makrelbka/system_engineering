@@ -1,0 +1,131 @@
+{
+  "id": null,
+  "uid": "flowershop-monitoring",
+  "title": "FlowerShop Monitoring",
+  "tags": ["flowershop", "monitoring"],
+  "timezone": "browser",
+  "schemaVersion": 27,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "HTTP Requests Rate",
+      "type": "graph",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "targets": [
+        {
+          "expr": "rate(http_server_requests_seconds_count{job=\"flowershop-backend\"}[5m])",
+          "legendFormat": "{{method}} {{uri}} {{status}}",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [{"format": "short"}, {"format": "short"}],
+      "xaxis": {"show": true}
+    },
+    {
+      "id": 2,
+      "title": "HTTP Response Time (99th percentile)",
+      "type": "graph",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, rate(http_server_requests_seconds_bucket{job=\"flowershop-backend\"}[5m]))",
+          "legendFormat": "99th percentile",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [{"format": "s"}, {"format": "short"}],
+      "xaxis": {"show": true}
+    },
+    {
+      "id": 3,
+      "title": "JVM Memory Usage",
+      "type": "graph",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "targets": [
+        {
+          "expr": "jvm_memory_used_bytes{job=\"flowershop-backend\",area=\"heap\"}",
+          "legendFormat": "Used",
+          "refId": "A"
+        },
+        {
+          "expr": "jvm_memory_max_bytes{job=\"flowershop-backend\",area=\"heap\"}",
+          "legendFormat": "Max",
+          "refId": "B"
+        }
+      ],
+      "yaxes": [{"format": "bytes"}, {"format": "short"}],
+      "xaxis": {"show": true}
+    },
+    {
+      "id": 4,
+      "title": "Database Connections",
+      "type": "graph",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "targets": [
+        {
+          "expr": "hikari_connections_active{job=\"flowershop-backend\"}",
+          "legendFormat": "Active",
+          "refId": "A"
+        },
+        {
+          "expr": "hikari_connections_max{job=\"flowershop-backend\"}",
+          "legendFormat": "Max",
+          "refId": "B"
+        }
+      ],
+      "yaxes": [{"format": "short"}, {"format": "short"}],
+      "xaxis": {"show": true}
+    },
+    {
+      "id": 5,
+      "title": "Error Rate (5xx)",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 16},
+      "targets": [
+        {
+          "expr": "rate(http_server_requests_seconds_count{job=\"flowershop-backend\",status=~\"5..\"}[5m])",
+          "legendFormat": "5xx errors/sec",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"value": 0, "color": "green"},
+              {"value": 0.05, "color": "yellow"},
+              {"value": 0.1, "color": "red"}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "Service Status",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 16},
+      "targets": [
+        {
+          "expr": "up{job=\"flowershop-backend\"}",
+          "legendFormat": "Status",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"value": 0, "color": "red"},
+              {"value": 1, "color": "green"}
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
