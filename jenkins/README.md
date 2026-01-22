@@ -57,6 +57,11 @@ docker exec -it flowershop-jenkins cat /var/jenkins_home/secrets/initialAdminPas
 `Jenkinsfile` делает:
 `cd website && docker compose up -d --build --remove-orphans`
 
+## Docker-in-Docker (только Git)
+Сейчас Jenkins работает с отдельным Docker‑демоном в контейнере `docker` (dind).
+Это значит, что Jenkins берёт весь код **только из Git**, без локальных bind‑mounts.
+`docker compose` выполняется внутри Jenkins и видит файлы в workspace.
+
 ## Если Jenkins не видит Docker (permission denied на /var/run/docker.sock)
 В `docker-compose.yml` Jenkins запускается как root (`user: root`) и монтирует `/var/run/docker.sock`. После изменения `docker-compose.yml` перезапусти Jenkins:
 ```bash
