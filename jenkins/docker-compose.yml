@@ -9,24 +9,10 @@ services:
       - "8081:8080" 
     volumes:
       - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
     environment:
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=true
-      - DOCKER_HOST=tcp://docker:2375
-      - DOCKER_TLS_CERTDIR=
-    depends_on:
-      - docker
-
-  docker:
-    image: docker:24-dind
-    container_name: flowershop-jenkins-dind
-    privileged: true
-    environment:
-      - DOCKER_TLS_CERTDIR=
-    volumes:
-      - jenkins_docker:/var/lib/docker
-    restart: unless-stopped
 
 volumes:
   jenkins_home:
-  jenkins_docker:
