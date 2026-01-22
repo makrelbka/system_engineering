@@ -45,5 +45,45 @@ services:
       - backend
     restart: unless-stopped
 
+  prometheus:
+    build:
+      context: ./monitoring/prometheus
+      dockerfile: Dockerfile
+    container_name: flowershop-prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    depends_on:
+      - backend
+    restart: unless-stopped
+    volumes:
+      - prometheus_data:/prometheus
+
+  grafana:
+    build:
+      context: ./monitoring/grafana
+      dockerfile: Dockerfile
+    container_name: flowershop-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
 volumes:
   postgres_data:
+  prometheus_data:
+  grafana_data:
