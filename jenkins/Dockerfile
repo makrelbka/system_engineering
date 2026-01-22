@@ -2,7 +2,6 @@ FROM jenkins/jenkins:lts-jdk17
 
 USER root
 
-# Git + Docker CLI + compose plugin внутри Jenkins-контейнера, чтобы pipeline мог выполнять `git` и `docker`/`docker compose`
 RUN apt-get update \
   && apt-get install -y --no-install-recommends ca-certificates curl gnupg lsb-release git \
   && install -m 0755 -d /etc/apt/keyrings \

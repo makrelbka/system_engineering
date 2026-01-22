@@ -9,14 +9,14 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 @Configuration
 public class JacksonConfig {
-    
+
     @Bean
     @Primary
     public ObjectMapper objectMapper(Jackson2ObjectMapperBuilder builder) {
         return builder.build()
                 .addMixIn(Object.class, IgnoreHibernateProperties.class);
     }
-    
+
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private abstract class IgnoreHibernateProperties {}
 }

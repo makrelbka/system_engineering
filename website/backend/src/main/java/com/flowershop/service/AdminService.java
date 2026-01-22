@@ -17,29 +17,27 @@ public class AdminService {
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
     private final CallbackRequestRepository callbackRequestRepository;
-    
-    public AdminService(UserRepository userRepository, 
+
+    public AdminService(UserRepository userRepository,
                        OrderRepository orderRepository,
                        CallbackRequestRepository callbackRequestRepository) {
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
         this.callbackRequestRepository = callbackRequestRepository;
     }
-    
-    // Авторизация
+
     public Optional<User> authenticate(String email, String password) {
         return userRepository.findByEmail(email)
-                .filter(user -> user.getPassword().equals(password) && 
+                .filter(user -> user.getPassword().equals(password) &&
                                user.getRole() == User.UserRole.ADMIN);
     }
-    
-    // Управление пользователями
+
     public List<User> getAllAdmins() {
         return userRepository.findAll().stream()
                 .filter(user -> user.getRole() == User.UserRole.ADMIN)
                 .toList();
     }
-    
+
     @Transactional
     public User createAdmin(String email, String password, String name, String phone) {
         if (userRepository.existsByEmail(email)) {
@@ -48,7 +46,7 @@ public class AdminService {
         User admin = new User(email, password, name, phone, User.UserRole.ADMIN);
         return userRepository.save(admin);
     }
-    
+
     @Transactional
     public void deleteAdmin(Long id) {
         User admin = userRepository.findById(id)
@@ -58,25 +56,24 @@ public class AdminService {
         }
         userRepository.delete(admin);
     }
-    
-    // Заказы
+
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
     }
-    
+
     public List<Order> getPendingOrders() {
         return orderRepository.findAll().stream()
-                .filter(order -> order.getStatus() == Order.OrderStatus.NEW || 
+                .filter(order -> order.getStatus() == Order.OrderStatus.NEW ||
                                order.getStatus() == Order.OrderStatus.IN_PROCESS)
                 .toList();
     }
-    
+
     public List<Order> getCompletedOrders() {
         return orderRepository.findAll().stream()
                 .filter(order -> order.getStatus() == Order.OrderStatus.COMPLETED)
                 .toList();
     }
-    
+
     @Transactional
     public Order updateOrderStatus(Long orderId, Order.OrderStatus status) {
         Order order = orderRepository.findById(orderId)
@@ -84,16 +81,15 @@ public class AdminService {
         order.setStatus(status);
         return orderRepository.save(order);
     }
-    
-    // Заявки на звонок
+
     public List<CallbackRequest> getPendingCallbacks() {
         return callbackRequestRepository.findByCompletedOrderByCreatedAtDesc(false);
     }
-    
+
     public List<CallbackRequest> getCompletedCallbacks() {
         return callbackRequestRepository.findByCompletedOrderByCreatedAtDesc(true);
     }
-    
+
     @Transactional
     public CallbackRequest markCallbackCompleted(Long id) {
         CallbackRequest request = callbackRequestRepository.findById(id)
@@ -101,7 +97,7 @@ public class AdminService {
         request.setCompleted(true);
         return callbackRequestRepository.save(request);
     }
-    
+
     @Transactional
     public CallbackRequest createCallback(String name, String phone) {
         CallbackRequest request = new CallbackRequest(name, phone);

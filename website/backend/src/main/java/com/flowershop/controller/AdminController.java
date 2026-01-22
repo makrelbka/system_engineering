@@ -15,16 +15,16 @@ import java.util.Map;
 @CrossOrigin(origins = "http://localhost:5173")
 public class AdminController {
     private final AdminService adminService;
-    
+
     public AdminController(AdminService adminService) {
         this.adminService = adminService;
     }
-    
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
         String email = credentials.get("email");
         String password = credentials.get("password");
-        
+
         return adminService.authenticate(email, password)
                 .map(admin -> ResponseEntity.ok(Map.of(
                     "success", true,
@@ -34,13 +34,12 @@ public class AdminController {
                 )))
                 .orElse(ResponseEntity.status(401).body(Map.of("success", false, "message", "Неверный email или пароль")));
     }
-    
-    // Управление администраторами
+
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAllAdmins() {
         return ResponseEntity.ok(adminService.getAllAdmins());
     }
-    
+
     @PostMapping("/users")
     public ResponseEntity<?> createAdmin(@RequestBody Map<String, String> data) {
         try {
@@ -55,7 +54,7 @@ public class AdminController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    
+
     @DeleteMapping("/users/{id}")
     public ResponseEntity<?> deleteAdmin(@PathVariable Long id) {
         try {
@@ -65,23 +64,22 @@ public class AdminController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    
-    // Заказы
+
     @GetMapping("/orders")
     public ResponseEntity<List<Order>> getAllOrders() {
         return ResponseEntity.ok(adminService.getAllOrders());
     }
-    
+
     @GetMapping("/orders/pending")
     public ResponseEntity<List<Order>> getPendingOrders() {
         return ResponseEntity.ok(adminService.getPendingOrders());
     }
-    
+
     @GetMapping("/orders/completed")
     public ResponseEntity<List<Order>> getCompletedOrders() {
         return ResponseEntity.ok(adminService.getCompletedOrders());
     }
-    
+
     @PutMapping("/orders/{id}/status")
     public ResponseEntity<?> updateOrderStatus(@PathVariable Long id, @RequestBody Map<String, String> data) {
         try {
@@ -92,18 +90,17 @@ public class AdminController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    
-    // Заявки на звонок
+
     @GetMapping("/callbacks/pending")
     public ResponseEntity<List<CallbackRequest>> getPendingCallbacks() {
         return ResponseEntity.ok(adminService.getPendingCallbacks());
     }
-    
+
     @GetMapping("/callbacks/completed")
     public ResponseEntity<List<CallbackRequest>> getCompletedCallbacks() {
         return ResponseEntity.ok(adminService.getCompletedCallbacks());
     }
-    
+
     @PutMapping("/callbacks/{id}/complete")
     public ResponseEntity<?> markCallbackCompleted(@PathVariable Long id) {
         try {

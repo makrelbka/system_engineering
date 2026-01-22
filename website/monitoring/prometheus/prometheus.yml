@@ -4,26 +4,17 @@ global:
   external_labels:
     monitor: 'flowershop-monitor'
 
-# Настройка Alertmanager (опционально)
-# alerting:
-#   alertmanagers:
-#     - static_configs:
-#         - targets: ['alertmanager:9093']
-
-# Правила алертов
 rule_files:
   - 'alerts.yml'
 
-# Сбор метрик
 scrape_configs:
-  # Метрики Prometheus (сам себя)
+
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
         labels:
           service: 'prometheus'
 
-  # Метрики Spring Boot приложения
   - job_name: 'flowershop-backend'
     metrics_path: '/actuator/prometheus'
     static_configs:
@@ -32,7 +23,3 @@ scrape_configs:
           service: 'flowershop-backend'
           application: 'flowershop'
 
-  # Метрики PostgreSQL (через postgres_exporter, опционально)
-  # - job_name: 'postgres'
-  #   static_configs:
-  #     - targets: ['postgres-exporter:9187']

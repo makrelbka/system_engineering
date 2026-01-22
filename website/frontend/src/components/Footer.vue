@@ -11,7 +11,7 @@
             Свежие цветы с доставкой. Создаем уникальные букеты для каждого повода.
           </p>
         </div>
-        
+
         <div>
           <h3 class="mb-4 text-lg">Информация</h3>
           <ul class="space-y-2 text-sm text-gray-600">
@@ -21,7 +21,7 @@
             <li><a href="#" class="hover:text-black transition-colors">Контакты</a></li>
           </ul>
         </div>
-        
+
         <div>
           <h3 class="mb-4 text-lg">Контакты</h3>
           <ul class="space-y-3 text-sm text-gray-600">
@@ -40,7 +40,7 @@
           </ul>
         </div>
       </div>
-      
+
       <div class="mt-8 border-t border-gray-300 pt-8 text-center text-sm text-gray-600">
         <p>© 2026 FlowerShop. Все права защищены.</p>
       </div>

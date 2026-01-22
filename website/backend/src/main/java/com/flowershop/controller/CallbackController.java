@@ -12,11 +12,11 @@ import java.util.Map;
 @CrossOrigin(origins = "http://localhost:5173")
 public class CallbackController {
     private final AdminService adminService;
-    
+
     public CallbackController(AdminService adminService) {
         this.adminService = adminService;
     }
-    
+
     @PostMapping
     public ResponseEntity<?> createCallback(@RequestBody Map<String, String> data) {
         try {

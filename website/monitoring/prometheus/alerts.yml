@@ -2,7 +2,7 @@ groups:
   - name: flowershop_alerts
     interval: 30s
     rules:
-      # Алерт: Сервис недоступен
+
       - alert: ServiceDown
         expr: up{job="flowershop-backend"} == 0
         for: 1m
@@ -12,7 +12,6 @@ groups:
           summary: "Сервис FlowerShop недоступен"
           description: "Сервис flowershop-backend недоступен более 1 минуты"
 
-      # Алерт: Высокая ошибка HTTP (5xx)
       - alert: HighErrorRate
         expr: rate(http_server_requests_seconds_count{job="flowershop-backend",status=~"5.."}[5m]) > 0.1
         for: 2m
@@ -22,7 +21,6 @@ groups:
           summary: "Высокий уровень ошибок HTTP 5xx"
           description: "Уровень ошибок HTTP 5xx превышает 0.1 запросов/сек"
 
-      # Алерт: Медленный ответ (> 2 секунды)
       - alert: SlowResponse
         expr: histogram_quantile(0.99, rate(http_server_requests_seconds_bucket{job="flowershop-backend"}[5m])) > 2
         for: 5m
@@ -32,7 +30,6 @@ groups:
           summary: "Медленный ответ сервиса"
           description: "99-й перцентиль времени ответа превышает 2 секунды"
 
-      # Алерт: Высокая нагрузка на JVM
       - alert: HighJvmMemoryUsage
         expr: (jvm_memory_used_bytes{job="flowershop-backend",area="heap"} / jvm_memory_max_bytes{job="flowershop-backend",area="heap"}) > 0.9
         for: 5m
@@ -42,7 +39,6 @@ groups:
           summary: "Высокое использование памяти JVM"
           description: "Использование heap памяти превышает 90%"
 
-      # Алерт: Много активных подключений к БД
       - alert: HighDatabaseConnections
         expr: hikari_connections_active{job="flowershop-backend"} / hikari_connections_max{job="flowershop-backend"} > 0.8
         for: 5m
@@ -52,7 +48,6 @@ groups:
           summary: "Высокая нагрузка на подключения к БД"
           description: "Использование подключений к БД превышает 80%"
 
-      # Алерт: Метрики не собираются
       - alert: NoMetricsScraped
         expr: up{job="flowershop-backend"} == 0
         for: 3m

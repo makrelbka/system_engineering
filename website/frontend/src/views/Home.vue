@@ -25,7 +25,6 @@ import Toaster from '../components/Toaster.vue'
 
 const { toast } = useToast()
 
-// Получаем корзину через inject
 const cart = inject('cart')
 
 const products = ref([])

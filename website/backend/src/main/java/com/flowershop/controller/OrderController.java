@@ -16,12 +16,12 @@ import java.util.Map;
 public class OrderController {
     private final OrderService orderService;
     private final WebSocketService webSocketService;
-    
+
     public OrderController(OrderService orderService, WebSocketService webSocketService) {
         this.orderService = orderService;
         this.webSocketService = webSocketService;
     }
-    
+
     @PostMapping
     public ResponseEntity<?> createOrder(@RequestBody Map<String, Object> request) {
         try {
@@ -29,28 +29,26 @@ public class OrderController {
             String customerEmail = (String) request.get("customerEmail");
             String customerPhone = (String) request.get("customerPhone");
             String deliveryAddress = (String) request.get("deliveryAddress");
-            
+
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> items = (List<Map<String, Object>>) request.get("items");
-            
+
             if (items == null || items.isEmpty()) {
                 return ResponseEntity.badRequest().body("Список товаров пуст");
             }
-            
-            // Создаем заказ (внутри списываются товары)
-            Order order = orderService.createOrder(customerName, customerEmail, customerPhone, 
+
+            Order order = orderService.createOrder(customerName, customerEmail, customerPhone,
                                                   deliveryAddress, items);
-            
-            // Отправляем обновление через WebSocket
+
             webSocketService.notifyProductUpdate();
-            
+
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(Map.of("success", true, "message", "Заказ создан", "orderId", order.getId()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    
+
     @GetMapping
     public ResponseEntity<List<Order>> getAllOrders() {
         return ResponseEntity.ok(orderService.getAllOrders());

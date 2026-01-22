@@ -18,15 +18,15 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final ProductService productService;
-    
-    public OrderService(OrderRepository orderRepository, 
+
+    public OrderService(OrderRepository orderRepository,
                        ProductRepository productRepository,
                        ProductService productService) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.productService = productService;
     }
-    
+
     @Transactional
     public Order createOrder(String customerName, String customerEmail, String customerPhone,
                             String deliveryAddress, List<Map<String, Object>> items) {
@@ -36,45 +36,43 @@ public class OrderService {
         order.setCustomerPhone(customerPhone);
         order.setDeliveryAddress(deliveryAddress);
         order.setStatus(Order.OrderStatus.NEW);
-        
+
         List<OrderItem> orderItems = new ArrayList<>();
         double totalPrice = 0.0;
-        
+
         for (Map<String, Object> itemData : items) {
             Long productId = Long.valueOf(itemData.get("productId").toString());
             Integer quantity = Integer.valueOf(itemData.get("quantity").toString());
-            
+
             Product product = productRepository.findById(productId)
                     .orElseThrow(() -> new RuntimeException("Товар не найден: " + productId));
-            
+
             if (product.getStock() < quantity) {
                 throw new RuntimeException("Недостаточно товара '" + product.getName() + "'. Доступно: " + product.getStock());
             }
-            
-            // Списываем товар
+
             productService.decreaseStock(productId, quantity, customerName, customerEmail);
-            
-            // Создаем элемент заказа
+
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProduct(product);
             orderItem.setQuantity(quantity);
-            orderItem.setPrice(product.getPrice()); // Цена на момент заказа
-            
+            orderItem.setPrice(product.getPrice());
+
             orderItems.add(orderItem);
             totalPrice += product.getPrice() * quantity;
         }
-        
+
         order.setItems(orderItems);
         order.setTotalPrice(totalPrice);
-        
+
         return orderRepository.save(order);
     }
-    
+
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
     }
-    
+
     public Optional<Order> getOrderById(Long id) {
         return orderRepository.findById(id);
     }

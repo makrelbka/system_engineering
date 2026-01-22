@@ -7,7 +7,7 @@
           Оставьте заявку, и мы свяжемся с вами для обсуждения индивидуального букета
         </p>
       </div>
-      
+
       <form @submit.prevent="handleSubmit" class="space-y-4 bg-white p-8 border-2 border-black rounded-lg">
         <div>
           <label for="name" class="block text-sm mb-2">
@@ -22,7 +22,7 @@
             required
           />
         </div>
-        
+
         <div>
           <label for="phone" class="block text-sm mb-2">
             Телефон *
@@ -36,7 +36,7 @@
             required
           />
         </div>
-        
+
         <div>
           <label for="message" class="block text-sm mb-2">
             Комментарий (необязательно)
@@ -48,9 +48,9 @@
             class="border-black min-h-[100px]"
           />
         </div>
-        
-        <Button 
-          type="submit" 
+
+        <Button
+          type="submit"
           class="w-full bg-black hover:bg-gray-800"
         >
           Отправить заявку на обратный звонок
@@ -78,7 +78,7 @@ const handleSubmit = async () => {
     toast.error('Пожалуйста, заполните имя и телефон')
     return
   }
-  
+
   try {
     const apiUrl = import.meta.env.VITE_API_URL || '/api'
     const response = await fetch(`${apiUrl}/callback`, {
@@ -91,11 +91,11 @@ const handleSubmit = async () => {
         phone: phone.value
       })
     })
-    
+
     if (!response.ok) {
       throw new Error('Ошибка при отправке заявки')
     }
-    
+
     toast.success('Заявка отправлена! Мы свяжемся с вами в ближайшее время.')
     name.value = ''
     phone.value = ''

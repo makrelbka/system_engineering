@@ -1,14 +1,13 @@
 <template>
   <div class="min-h-screen bg-white">
     <Header />
-    
+
     <div v-if="!orderSubmitted" class="container mx-auto px-4 py-16 max-w-2xl">
       <div class="mb-8">
         <h1 class="text-4xl mb-2">Оформление заказа</h1>
         <p class="text-gray-600">Заполните контактные данные для завершения заказа</p>
       </div>
 
-      <!-- Сводка заказа -->
       <div class="mb-8 p-6 border-2 border-black rounded-lg bg-gray-50">
         <h2 class="text-xl mb-4">Ваш заказ</h2>
         <div class="space-y-3 mb-4">
@@ -60,7 +59,6 @@
         </div>
       </div>
 
-      <!-- Форма -->
       <form @submit.prevent="handleSubmit" class="space-y-6 bg-white p-8 border-2 border-black rounded-lg">
         <div>
           <label for="name" class="block text-sm font-medium mb-2">
@@ -75,7 +73,7 @@
             required
           />
         </div>
-        
+
         <div>
           <label for="phone" class="block text-sm font-medium mb-2">
             Телефон *
@@ -89,7 +87,7 @@
             required
           />
         </div>
-        
+
         <div>
           <label for="email" class="block text-sm font-medium mb-2">
             Email *
@@ -103,7 +101,7 @@
             required
           />
         </div>
-        
+
         <div>
           <label for="address" class="block text-sm font-medium mb-2">
             Адрес доставки *
@@ -116,7 +114,7 @@
             required
           />
         </div>
-        
+
         <div>
           <label for="comment" class="block text-sm font-medium mb-2">
             Комментарий к заказу (необязательно)
@@ -128,7 +126,7 @@
             class="border-black min-h-[80px]"
           />
         </div>
-        
+
         <div class="flex gap-4">
           <Button
             type="button"
@@ -138,8 +136,8 @@
           >
             Вернуться к покупкам
           </Button>
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             class="flex-1 bg-black hover:bg-gray-800"
             :disabled="cart.length === 0"
           >
@@ -149,7 +147,6 @@
       </form>
     </div>
 
-    <!-- Сообщение после оформления -->
     <div v-else class="container mx-auto px-4 py-16 max-w-2xl">
       <div class="text-center p-12 border-2 border-black rounded-lg bg-gray-50">
         <div class="mb-6">
@@ -205,12 +202,10 @@ import Textarea from '../components/ui/Textarea.vue'
 const router = useRouter()
 const { toast } = useToast()
 
-// Получаем корзину через inject
 const cart = inject('cart')
 
 const orderSubmitted = ref(false)
 
-// Проверяем корзину при загрузке страницы
 onMounted(() => {
   if (cart.value.length === 0) {
     toast.error('Корзина пуста')
@@ -267,7 +262,7 @@ const handleSubmit = async () => {
   }
 
   try {
-    // Отправляем заказ на бэкенд
+
     const apiUrl = import.meta.env.VITE_API_URL || '/api'
     const response = await fetch(`${apiUrl}/orders`, {
       method: 'POST',
@@ -293,8 +288,7 @@ const handleSubmit = async () => {
 
     orderSubmitted.value = true
     toast.success('Заказ успешно оформлен!')
-    
-    // Очищаем корзину после успешного оформления
+
     cart.value = []
   } catch (error) {
     toast.error(error.message || 'Не удалось оформить заказ')
@@ -302,7 +296,7 @@ const handleSubmit = async () => {
 }
 
 const handleBackToHome = () => {
-  // Возвращаемся на главную (корзина уже очищена)
+
   orderSubmitted.value = false
   formData.value = {
     name: '',

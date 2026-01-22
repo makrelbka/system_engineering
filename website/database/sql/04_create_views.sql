@@ -1,22 +1,15 @@
--- ============================================
--- Представления (VIEWs) базы данных FlowerShop
--- Лабораторная работа 3
--- ============================================
 
--- ============================================
--- Представление: Полная информация о товарах с категориями
--- ============================================
 CREATE OR REPLACE VIEW v_products_full AS
-SELECT 
+SELECT
     p.id,
     p.name AS product_name,
     p.price,
     p.description,
     p.image,
     p.stock,
-    CASE 
-        WHEN p.stock > 0 THEN TRUE 
-        ELSE FALSE 
+    CASE
+        WHEN p.stock > 0 THEN TRUE
+        ELSE FALSE
     END AS available,
     c.id AS category_id,
     c.name AS category_name,
@@ -26,11 +19,8 @@ LEFT JOIN categories c ON c.id = p.category_id;
 
 COMMENT ON VIEW v_products_full IS 'Полная информация о товарах с категориями';
 
--- ============================================
--- Представление: Детальная информация о заказах
--- ============================================
 CREATE OR REPLACE VIEW v_orders_full AS
-SELECT 
+SELECT
     o.id AS order_id,
     o.customer_name,
     o.customer_email,
@@ -47,18 +37,15 @@ SELECT
 FROM orders o
 LEFT JOIN users u ON u.id = o.user_id
 LEFT JOIN order_items oi ON oi.order_id = o.id
-GROUP BY 
+GROUP BY
     o.id, o.customer_name, o.customer_email, o.customer_phone,
     o.delivery_address, o.status, o.total_price, o.created_at,
     u.id, u.name, u.email;
 
 COMMENT ON VIEW v_orders_full IS 'Детальная информация о заказах с данными пользователя и количеством товаров';
 
--- ============================================
--- Представление: Товары в заказах (детализация)
--- ============================================
 CREATE OR REPLACE VIEW v_order_items_details AS
-SELECT 
+SELECT
     oi.id AS order_item_id,
     oi.order_id,
     oi.product_id,
@@ -78,11 +65,8 @@ JOIN orders o ON o.id = oi.order_id;
 
 COMMENT ON VIEW v_order_items_details IS 'Детальная информация об элементах заказов с данными товаров';
 
--- ============================================
--- Представление: Статистика по заказам по дням
--- ============================================
 CREATE OR REPLACE VIEW v_orders_daily_stats AS
-SELECT 
+SELECT
     DATE(o.created_at) AS order_date,
     COUNT(o.id) AS orders_count,
     COUNT(CASE WHEN o.status = 'NEW' THEN 1 END) AS new_orders,
@@ -99,17 +83,14 @@ ORDER BY order_date DESC;
 
 COMMENT ON VIEW v_orders_daily_stats IS 'Статистика по заказам, сгруппированная по дням';
 
--- ============================================
--- Представление: Товары с низким остатком
--- ============================================
 CREATE OR REPLACE VIEW v_products_low_stock AS
-SELECT 
+SELECT
     p.id,
     p.name AS product_name,
     p.stock,
     p.price,
     c.name AS category_name,
-    CASE 
+    CASE
         WHEN p.stock = 0 THEN 'Нет в наличии'
         WHEN p.stock < 5 THEN 'Осталось мало'
         WHEN p.stock < 10 THEN 'Средний остаток'
@@ -122,11 +103,8 @@ ORDER BY p.stock ASC, p.name;
 
 COMMENT ON VIEW v_products_low_stock IS 'Товары с низким остатком на складе (меньше 10 единиц)';
 
--- ============================================
--- Представление: Администраторы системы
--- ============================================
 CREATE OR REPLACE VIEW v_admin_users AS
-SELECT 
+SELECT
     id,
     email,
     name,
@@ -137,11 +115,8 @@ WHERE role = 'ADMIN';
 
 COMMENT ON VIEW v_admin_users IS 'Список всех администраторов системы';
 
--- ============================================
--- Представление: Клиенты с их статистикой заказов
--- ============================================
 CREATE OR REPLACE VIEW v_clients_stats AS
-SELECT 
+SELECT
     u.id AS user_id,
     u.email,
     u.name,
@@ -157,11 +132,8 @@ GROUP BY u.id, u.email, u.name, u.phone;
 
 COMMENT ON VIEW v_clients_stats IS 'Статистика по клиентам с информацией о заказах';
 
--- ============================================
--- Представление: Необработанные заявки на звонок
--- ============================================
 CREATE OR REPLACE VIEW v_pending_callbacks AS
-SELECT 
+SELECT
     id,
     name,
     phone,

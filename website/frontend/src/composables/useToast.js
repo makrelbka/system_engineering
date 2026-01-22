@@ -10,9 +10,9 @@ export function useToast() {
       message,
       type
     }
-    
+
     toasts.value.push(toast)
-    
+
     setTimeout(() => {
       const index = toasts.value.findIndex(t => t.id === id)
       if (index > -1) {

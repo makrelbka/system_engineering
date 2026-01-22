@@ -5,7 +5,7 @@
         <Flower2 :size="24" class="text-black" />
         <h1 class="text-xl cursor-pointer">FlowerShop</h1>
       </router-link>
-      
+
       <Button variant="outline" size="icon" class="relative border-black" @click="isCartOpen = true">
         <ShoppingCart :size="20" />
         <span
@@ -15,7 +15,7 @@
           {{ totalItems }}
         </span>
       </Button>
-      
+
       <Sheet :model-value="isCartOpen" @update:model-value="isCartOpen = $event">
         <template #title>Корзина</template>
         <div class="mt-8 flex flex-col gap-4">
@@ -76,7 +76,7 @@
                 <span>Итого:</span>
                 <span class="font-semibold">${{ totalPrice.toFixed(2) }}</span>
               </div>
-              <Button 
+              <Button
                 class="w-full bg-black hover:bg-gray-800"
                 @click="handleCheckout"
               >
@@ -108,7 +108,6 @@ const props = defineProps({
 
 const emit = defineEmits(['remove-from-cart', 'update-quantity'])
 
-// Используем inject для получения корзины, если не передана через props
 const injectedCart = inject('cart')
 const cart = computed(() => props.cart || injectedCart.value)
 

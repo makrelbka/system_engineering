@@ -6,11 +6,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class WebSocketService {
     private final SimpMessagingTemplate messagingTemplate;
-    
+
     public WebSocketService(SimpMessagingTemplate messagingTemplate) {
         this.messagingTemplate = messagingTemplate;
     }
-    
+
     public void notifyProductUpdate() {
         messagingTemplate.convertAndSend("/topic/products", "update");
     }

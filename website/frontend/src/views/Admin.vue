@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-white">
-    <!-- Авторизация -->
+
     <div v-if="!isAuthenticated" class="min-h-screen flex items-center justify-center bg-gray-50">
       <div class="w-full max-w-md p-8 bg-white border-2 border-black rounded-lg">
         <h1 class="text-3xl mb-6 text-center">Админ-панель</h1>
@@ -32,7 +32,6 @@
       </div>
     </div>
 
-    <!-- Админ-панель -->
     <div v-else class="container mx-auto px-4 py-8">
       <div class="mb-6 flex justify-between items-center">
         <h1 class="text-4xl">Админ-панель</h1>
@@ -41,7 +40,6 @@
         </Button>
       </div>
 
-      <!-- Табы -->
       <div class="mb-6 border-b-2 border-black">
         <div class="flex gap-4">
           <button
@@ -60,9 +58,8 @@
         </div>
       </div>
 
-      <!-- Ожидающие (заказы и звонки) -->
       <div v-if="activeTab === 'pending'" class="space-y-8">
-        <!-- Ожидающие заказы -->
+
         <div>
           <h2 class="text-2xl mb-4">Заказы (требуют обработки)</h2>
           <div v-if="pendingOrders.length === 0" class="text-gray-500 text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
@@ -113,7 +110,6 @@
           </div>
         </div>
 
-        <!-- Ожидающие звонки -->
         <div>
           <h2 class="text-2xl mb-4">Заявки на звонок (требуют обработки)</h2>
           <div v-if="pendingCallbacks.length === 0" class="text-gray-500 text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
@@ -143,7 +139,6 @@
         </div>
       </div>
 
-      <!-- Выполненные звонки -->
       <div v-if="activeTab === 'callbacks-completed'" class="space-y-4">
         <h2 class="text-2xl mb-4">Выполненные заявки на звонок</h2>
         <div v-if="completedCallbacks.length === 0" class="text-gray-500 text-center py-8">
@@ -164,7 +159,6 @@
         </div>
       </div>
 
-      <!-- Выполненные заказы -->
       <div v-if="activeTab === 'orders-completed'" class="space-y-4">
         <h2 class="text-2xl mb-4">Выполненные заказы</h2>
         <div v-if="completedOrders.length === 0" class="text-gray-500 text-center py-8">
@@ -234,12 +228,12 @@ const handleLogin = async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(loginForm.value)
     })
-    
+
     const data = await response.json()
     if (data.success) {
       isAuthenticated.value = true
       currentUser.value = data
-      // Сохраняем в localStorage
+
       localStorage.setItem('admin_auth', JSON.stringify(data))
       await loadData()
     } else {
@@ -254,7 +248,7 @@ const handleLogout = () => {
   isAuthenticated.value = false
   currentUser.value = null
   loginForm.value = { email: '', password: '' }
-  // Удаляем из localStorage
+
   localStorage.removeItem('admin_auth')
 }
 
@@ -278,7 +272,7 @@ const loadData = async () => {
         return r.json()
       })
     ])
-    
+
     pendingOrders.value = responses[0] || []
     completedOrders.value = responses[1] || []
     pendingCallbacks.value = responses[2] || []
@@ -286,7 +280,7 @@ const loadData = async () => {
   } catch (error) {
     console.error('Ошибка при загрузке данных:', error)
     toast.error('Ошибка при загрузке данных')
-    // Не выбрасываем ошибку, чтобы не сбрасывать авторизацию
+
   }
 }
 
@@ -317,25 +311,24 @@ const markCallbackCompleted = async (id) => {
 }
 
 onMounted(() => {
-  // Восстанавливаем сессию из localStorage
+
   const savedAuth = localStorage.getItem('admin_auth')
   if (savedAuth) {
     try {
       const authData = JSON.parse(savedAuth)
       isAuthenticated.value = true
       currentUser.value = authData
-      // Загружаем данные асинхронно
+
       loadData().catch(err => {
         console.error('Ошибка при загрузке данных:', err)
-        // Не сбрасываем авторизацию при ошибке загрузки данных
+
       })
     } catch (error) {
       console.error('Ошибка при восстановлении сессии:', error)
       localStorage.removeItem('admin_auth')
     }
   }
-  
-  // Автоматически перезагружать данные при смене таба
+
   watch(activeTab, () => {
     if (isAuthenticated.value) {
       loadData().catch(err => {
