@@ -56,3 +56,11 @@ docker exec -it flowershop-jenkins cat /var/jenkins_home/secrets/initialAdminPas
 ## Деплой на эту же машину
 `Jenkinsfile` делает:
 `cd website && docker compose up -d --build --remove-orphans`
+
+## Если Jenkins не видит Docker (permission denied на /var/run/docker.sock)
+В `docker-compose.yml` Jenkins запускается как root (`user: root`) и монтирует `/var/run/docker.sock`. После изменения `docker-compose.yml` перезапусти Jenkins:
+```bash
+cd jenkins
+docker compose down
+docker compose up -d --build
+```

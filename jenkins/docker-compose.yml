@@ -4,6 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: flowershop-jenkins
+    user: root
     ports:
       - "8081:8080" 
     volumes:
