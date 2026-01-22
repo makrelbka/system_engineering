@@ -6,8 +6,10 @@
 
 ```
 website/
-├── frontend/    # Vue 3 + Vite + Tailwind
-└── backend/     # Java Spring Boot
+├── frontend/     # Vue 3 + Vite + Tailwind
+├── backend/      # Java Spring Boot
+├── database/     # JPA модели + SQL-скрипты + ER-диаграмма
+└── monitoring/   # Prometheus + Grafana (дашборд, алерты)
 ```
 
 ## Запуск через Docker
@@ -19,27 +21,38 @@ website/
 ### Команды
 
 ```bash
-# Запустить все сервисы
-docker-compose up --build
+# Запустить все сервисы (включая мониторинг)
+docker compose up --build
 
 # Запустить в фоне
-docker-compose up -d --build
+docker compose up -d --build
 
 # Остановить
-docker-compose down
+docker compose down
 
 # Посмотреть логи
-docker-compose logs -f
+docker compose logs -f
 
 # Пересобрать и запустить
-docker-compose up --build --force-recreate
+docker compose up --build --force-recreate
 ```
 
 ### Доступ
 
 - **Фронтенд**: http://localhost
 - **Бэкенд API**: http://localhost:8080
+- **Prometheus**: http://localhost:9090
+- **Grafana**: http://localhost:3000 (admin/admin)
 - **Логи**: `website/backend/logs/flowershop.log`
+
+### База данных
+- SQL-скрипты: `website/database/sql/`
+- ER-диаграмма: `website/database/diagrams/database-schema.dbml` (открывается через dbdiagram.io)
+
+### Мониторинг (Prometheus + Grafana)
+- Конфиги: `website/monitoring/`
+- Алёрты: `website/monitoring/prometheus/alerts.yml`
+- Дашборд: `website/monitoring/grafana/dashboards/flowershop-dashboard.json`
 
 ## Запуск без Docker
 

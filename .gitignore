@@ -1,0 +1,29 @@
+# Project ignores
+backup/
+logs/
+website/logs/
+
+# Build artifacts
+target/
+**/target/
+*.jar
+*.war
+*.ear
+
+# Node
+node_modules/
+**/node_modules/
+*.log
+npm-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+
+# IDE/OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Maven wrapper / misc
+.mvn/
