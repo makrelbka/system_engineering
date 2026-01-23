@@ -16,7 +16,6 @@ actor "Администратор" as Admin
 participant "Frontend (Admin Panel)" as AdminPanel
 participant "Backend (Spring Boot)" as Backend
 participant "AdminService" as AdminService
-participant "AdminStore (in memory)" as AdminStore
 participant "OrderService" as OrderService
 database "PostgreSQL" as DB
 
@@ -28,8 +27,8 @@ activate Backend
 
 Backend -> AdminService: authenticate(email, password)
 activate AdminService
-AdminService -> AdminStore: Поиск администратора
-AdminStore --> AdminService: Admin data
+AdminService -> DB: SELECT * FROM users WHERE email = ?
+DB --> AdminService: User data
 AdminService -> AdminService: Проверка пароля
 AdminService --> Backend: User (если валиден)
 deactivate AdminService

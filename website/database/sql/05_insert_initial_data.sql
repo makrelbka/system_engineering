@@ -1,5 +1,10 @@
 DO $$
 BEGIN
+    IF NOT EXISTS (SELECT 1 FROM users) THEN
+        INSERT INTO users (email, password, name, phone, role)
+        VALUES ('admin@flowershop.ru', 'admin', 'Администратор', '+7 (495) 123-45-67', 'ADMIN');
+    END IF;
+
     IF NOT EXISTS (SELECT 1 FROM products) THEN
         INSERT INTO products (name, price, description, image) VALUES
         ('Розовые розы', 45.99,

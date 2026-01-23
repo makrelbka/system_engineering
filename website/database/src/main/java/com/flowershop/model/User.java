@@ -1,17 +1,33 @@
 package com.flowershop.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "users")
 public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true)
     private String email;
+
+    @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
     private String name;
+
+    @Column
     private String phone;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private UserRole role;
 
     public User() {}
 
-    public User(Long id, String email, String password, String name, String phone, UserRole role) {
-        this.id = id;
+    public User(String email, String password, String name, String phone, UserRole role) {
         this.email = email;
         this.password = password;
         this.name = name;
@@ -68,6 +84,6 @@ public class User {
     }
 
     public enum UserRole {
-        CLIENT, ADMIN
+        ADMIN
     }
 }

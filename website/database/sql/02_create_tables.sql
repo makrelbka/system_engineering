@@ -1,7 +1,27 @@
 
 DROP TABLE IF EXISTS order_items CASCADE;
 DROP TABLE IF EXISTS orders CASCADE;
+DROP TABLE IF EXISTS callback_requests CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS products CASCADE;
+
+CREATE TABLE users (
+    id BIGSERIAL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    phone VARCHAR(255),
+    role VARCHAR(20) NOT NULL DEFAULT 'ADMIN',
+    CONSTRAINT chk_user_role CHECK (role IN ('ADMIN'))
+);
+
+COMMENT ON TABLE users IS 'Таблица пользователей системы';
+COMMENT ON COLUMN users.id IS 'Уникальный идентификатор пользователя';
+COMMENT ON COLUMN users.email IS 'Email пользователя (уникальный)';
+COMMENT ON COLUMN users.password IS 'Пароль пользователя';
+COMMENT ON COLUMN users.name IS 'Имя пользователя';
+COMMENT ON COLUMN users.phone IS 'Телефон пользователя';
+COMMENT ON COLUMN users.role IS 'Роль пользователя: ADMIN';
 
 CREATE TABLE products (
     id BIGSERIAL PRIMARY KEY,
@@ -65,6 +85,21 @@ COMMENT ON COLUMN order_items.product_image IS 'Изображение това�
 COMMENT ON COLUMN order_items.quantity IS 'Количество товара в заказе';
 COMMENT ON COLUMN order_items.price IS 'Цена товара на момент заказа';
 
+CREATE TABLE callback_requests (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    phone VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    completed BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+COMMENT ON TABLE callback_requests IS 'Таблица заявок на обратный звонок';
+COMMENT ON COLUMN callback_requests.id IS 'Уникальный идентификатор заявки';
+COMMENT ON COLUMN callback_requests.name IS 'Имя клиента';
+COMMENT ON COLUMN callback_requests.phone IS 'Телефон клиента';
+COMMENT ON COLUMN callback_requests.created_at IS 'Дата и время создания заявки';
+COMMENT ON COLUMN callback_requests.completed IS 'Флаг обработки заявки';
+
 CREATE INDEX idx_orders_status ON orders(status);
 CREATE INDEX idx_orders_created_at ON orders(created_at);
 CREATE INDEX idx_orders_customer_email ON orders(customer_email);
@@ -73,3 +108,9 @@ CREATE INDEX idx_products_name ON products(name);
 
 CREATE INDEX idx_order_items_order_id ON order_items(order_id);
 CREATE INDEX idx_order_items_product_id ON order_items(product_id);
+
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_role ON users(role);
+
+CREATE INDEX idx_callback_requests_completed ON callback_requests(completed);
+CREATE INDEX idx_callback_requests_created_at ON callback_requests(created_at);
