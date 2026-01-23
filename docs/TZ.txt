@@ -13,7 +13,7 @@
 1. Фронтенд: Vue 3 + Vite + Tailwind, подгружает каталог через `/api/products`.
 2. Бэкенд: Spring Boot, REST API, PostgreSQL, JPA.
 3. Каталог товаров хранится в базе данных.
-4. Админские аккаунты и заявки на звонок хранятся в памяти и не сохраняются в БД.
+4. Админские аккаунты и заявки на звонок хранятся в базе данных.
 5. Метрики: Spring Actuator + Prometheus, Grafana отображает графики.
 6. Docker Compose для backend/frontend/postgres/prometheus/grafana.
 
@@ -37,7 +37,7 @@
 - Product: название, описание, цена, изображение (URL или PNG).
 - Order и OrderItem со статусами: новый → в работе → доставляется → завершён.
 - CallbackRequest: имя, телефон, статус.
-- User (админ): email, пароль (клиенты без учёток).
+- User (админ): email, пароль.
 
 ### 6 Необходимые условия
 1. Автозапуск через Docker Compose.
