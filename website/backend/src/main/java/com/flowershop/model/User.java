@@ -1,36 +1,17 @@
 package com.flowershop.model;
 
-import jakarta.persistence.*;
-import java.util.List;
-
-@Entity
-@Table(name = "users")
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false, unique = true)
     private String email;
-
-    @Column(nullable = false)
     private String password;
-
-    @Column(nullable = false)
     private String name;
-
     private String phone;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private UserRole role;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Order> orders;
 
     public User() {}
 
-    public User(String email, String password, String name, String phone, UserRole role) {
+    public User(Long id, String email, String password, String name, String phone, UserRole role) {
+        this.id = id;
         this.email = email;
         this.password = password;
         this.name = name;
@@ -84,14 +65,6 @@ public class User {
 
     public void setRole(UserRole role) {
         this.role = role;
-    }
-
-    public List<Order> getOrders() {
-        return orders;
-    }
-
-    public void setOrders(List<Order> orders) {
-        this.orders = orders;
     }
 
     public enum UserRole {

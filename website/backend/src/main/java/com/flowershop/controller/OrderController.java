@@ -2,7 +2,6 @@ package com.flowershop.controller;
 
 import com.flowershop.model.Order;
 import com.flowershop.service.OrderService;
-import com.flowershop.service.WebSocketService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,11 +14,9 @@ import java.util.Map;
 @CrossOrigin(origins = "http://localhost:5173")
 public class OrderController {
     private final OrderService orderService;
-    private final WebSocketService webSocketService;
 
-    public OrderController(OrderService orderService, WebSocketService webSocketService) {
+    public OrderController(OrderService orderService) {
         this.orderService = orderService;
-        this.webSocketService = webSocketService;
     }
 
     @PostMapping
@@ -39,8 +36,6 @@ public class OrderController {
 
             Order order = orderService.createOrder(customerName, customerEmail, customerPhone,
                                                   deliveryAddress, items);
-
-            webSocketService.notifyProductUpdate();
 
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(Map.of("success", true, "message", "Заказ создан", "orderId", order.getId()));

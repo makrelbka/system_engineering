@@ -87,7 +87,7 @@
                 <h4 class="font-medium mb-2">Товары:</h4>
                 <ul class="space-y-1">
                   <li v-for="item in order.items" :key="item.id">
-                    {{ item.product.name }} × {{ item.quantity }} — ${{ (item.price * item.quantity).toFixed(2) }}
+                    {{ item.productName }} × {{ item.quantity }} — ${{ (item.price * item.quantity).toFixed(2) }}
                   </li>
                 </ul>
               </div>
@@ -134,6 +134,83 @@
                   Выполнено
                 </Button>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="activeTab === 'products'" class="space-y-6">
+        <div class="p-6 border-2 border-black rounded-lg">
+          <h2 class="text-2xl mb-4">Добавить товар</h2>
+          <form @submit.prevent="createProduct" class="grid gap-4 md:grid-cols-2">
+            <div class="md:col-span-1">
+              <label class="block text-sm font-medium mb-2">Название</label>
+              <Input v-model="productForm.name" type="text" class="border-black" required />
+            </div>
+            <div class="md:col-span-1">
+              <label class="block text-sm font-medium mb-2">Цена</label>
+              <Input v-model="productForm.price" type="number" step="0.01" min="0" class="border-black" required />
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium mb-2">Описание</label>
+              <Textarea v-model="productForm.description" class="border-black min-h-[80px]" />
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium mb-2">Фото (URL)</label>
+              <Input v-model="productForm.image" type="text" class="border-black" />
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium mb-2">Фото (PNG файл)</label>
+              <input
+                type="file"
+                accept="image/png"
+                class="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:border-2 file:border-black file:bg-white file:text-sm file:font-semibold file:cursor-pointer"
+                @change="handleImageUpload"
+              />
+              <p v-if="productForm.imageFileName" class="text-xs text-gray-500 mt-1">
+                Выбран файл: {{ productForm.imageFileName }}
+              </p>
+            </div>
+            <div class="md:col-span-2">
+              <Button type="submit" class="bg-black hover:bg-gray-800">
+                Добавить товар
+              </Button>
+            </div>
+          </form>
+        </div>
+
+        <div>
+          <h2 class="text-2xl mb-4">Список товаров</h2>
+          <div v-if="products.length === 0" class="text-gray-500 text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+            Товаров нет
+          </div>
+          <div v-else class="grid gap-4 md:grid-cols-2">
+            <div
+              v-for="product in products"
+              :key="product.id"
+              class="p-4 border-2 border-black rounded-lg flex gap-4"
+            >
+              <img
+                v-if="product.image"
+                :src="product.image"
+                :alt="product.name"
+                class="h-20 w-20 rounded-md object-cover border-2 border-black"
+              />
+              <div class="flex-1">
+                <h3 class="text-lg font-semibold">{{ product.name }}</h3>
+                <p class="text-sm text-gray-600">${{ Number(product.price).toFixed(2) }}</p>
+                <p v-if="product.description" class="text-sm text-gray-500 mt-1">
+                  {{ product.description }}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                class="text-red-600"
+                @click="deleteProduct(product.id)"
+              >
+                Удалить
+              </Button>
             </div>
           </div>
         </div>
@@ -196,6 +273,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useToast } from '../composables/useToast'
 import Button from '../components/ui/Button.vue'
 import Input from '../components/ui/Input.vue'
+import Textarea from '../components/ui/Textarea.vue'
 import Toaster from '../components/Toaster.vue'
 
 const { toast } = useToast()
@@ -207,6 +285,7 @@ const activeTab = ref('pending')
 
 const tabs = [
   { id: 'pending', name: 'Ожидающие' },
+  { id: 'products', name: 'Товары' },
   { id: 'callbacks-completed', name: 'Выполненные звонки' },
   { id: 'orders-completed', name: 'Выполненные заказы' }
 ]
@@ -220,6 +299,15 @@ const pendingOrders = ref([])
 const completedOrders = ref([])
 const pendingCallbacks = ref([])
 const completedCallbacks = ref([])
+const products = ref([])
+
+const productForm = ref({
+  name: '',
+  price: '',
+  description: '',
+  image: '',
+  imageFileName: ''
+})
 
 const handleLogin = async () => {
   try {
@@ -270,6 +358,10 @@ const loadData = async () => {
       fetch(`${apiUrl}/admin/callbacks/completed`).then(r => {
         if (!r.ok) throw new Error('Failed to load completed callbacks')
         return r.json()
+      }),
+      fetch(`${apiUrl}/admin/products`).then(r => {
+        if (!r.ok) throw new Error('Failed to load products')
+        return r.json()
       })
     ])
 
@@ -277,6 +369,7 @@ const loadData = async () => {
     completedOrders.value = responses[1] || []
     pendingCallbacks.value = responses[2] || []
     completedCallbacks.value = responses[3] || []
+    products.value = responses[4] || []
   } catch (error) {
     console.error('Ошибка при загрузке данных:', error)
     toast.error('Ошибка при загрузке данных')
@@ -308,6 +401,70 @@ const markCallbackCompleted = async (id) => {
   } catch (error) {
     toast.error('Ошибка при обновлении заявки')
   }
+}
+
+const createProduct = async () => {
+  try {
+    const payload = {
+      name: productForm.value.name,
+      price: productForm.value.price,
+      description: productForm.value.description,
+      image: productForm.value.image
+    }
+
+    const response = await fetch(`${apiUrl}/admin/products`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+
+    if (!response.ok) {
+      const message = await response.text()
+      throw new Error(message || 'Ошибка при добавлении товара')
+    }
+
+    toast.success('Товар добавлен')
+    productForm.value = { name: '', price: '', description: '', image: '', imageFileName: '' }
+    await loadData()
+  } catch (error) {
+    toast.error(error.message || 'Ошибка при добавлении товара')
+  }
+}
+
+const deleteProduct = async (id) => {
+  try {
+    const response = await fetch(`${apiUrl}/admin/products/${id}`, {
+      method: 'DELETE'
+    })
+    if (!response.ok) {
+      const message = await response.text()
+      throw new Error(message || 'Ошибка при удалении товара')
+    }
+    toast.success('Товар удален')
+    await loadData()
+  } catch (error) {
+    toast.error(error.message || 'Ошибка при удалении товара')
+  }
+}
+
+const handleImageUpload = (event) => {
+  const file = event.target.files && event.target.files[0]
+  if (!file) return
+  if (file.type !== 'image/png') {
+    toast.error('Можно загрузить только PNG')
+    event.target.value = ''
+    return
+  }
+
+  const reader = new FileReader()
+  reader.onload = () => {
+    productForm.value.image = reader.result
+    productForm.value.imageFileName = file.name
+  }
+  reader.onerror = () => {
+    toast.error('Не удалось прочитать файл')
+  }
+  reader.readAsDataURL(file)
 }
 
 onMounted(() => {

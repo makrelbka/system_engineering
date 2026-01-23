@@ -42,19 +42,14 @@ activate Backend
 Backend -> OrderService: createOrder()
 activate OrderService
 
-OrderService -> ProductService: Проверка наличия товара
+OrderService -> ProductService: Получить товар по id
 activate ProductService
-ProductService -> DB: SELECT stock FROM products WHERE id = ?
-DB --> ProductService: Возврат stock
+ProductService -> DB: SELECT * FROM products WHERE id = ?
+DB --> ProductService: Product
+ProductService --> OrderService: Данные товара
 deactivate ProductService
 
-alt Товар в наличии
-  OrderService -> ProductService: decreaseStock()
-  activate ProductService
-  ProductService -> DB: UPDATE products SET stock = stock - quantity
-  ProductService -> ProductService: Логирование покупки
-  deactivate ProductService
-  
+alt Товар найден
   OrderService -> DB: INSERT INTO orders
   OrderService -> DB: INSERT INTO order_items
   
@@ -67,8 +62,8 @@ alt Товар в наличии
   Frontend -> Frontend: Показ сообщения "Ждите звонка"
   
   Client -> Frontend: 5. Видит подтверждение заказа
-else Товар не в наличии
-  OrderService --> Backend: Error: Недостаточно товара
+else Товар не найден
+  OrderService --> Backend: Error: Товар не найден
   deactivate OrderService
   Backend --> Frontend: 400 Bad Request
   Frontend -> Client: Отображение ошибки

@@ -128,7 +128,7 @@ const handleUpdateQuantity = (id, quantity) => {
     if (props.cart) {
       emit('update-quantity', id, quantity)
     } else {
-      const item = injectedCart.value.find((item) => item.id === id)
+      const item = injectedCart.value.find((cartItem) => cartItem.id === id)
       if (item) {
         item.quantity = quantity
       }

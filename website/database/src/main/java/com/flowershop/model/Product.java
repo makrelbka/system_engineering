@@ -1,8 +1,6 @@
 package com.flowershop.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import java.util.List;
 
 @Entity
 @Table(name = "products")
@@ -20,29 +18,16 @@ public class Product {
     @Column(length = 1000)
     private String description;
 
-    @Column(length = 500)
+    @Column(columnDefinition = "TEXT")
     private String image;
-
-    @Column(nullable = false)
-    private Integer stock;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    @JsonIgnore
-    private Category category;
-
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<OrderItem> orderItems;
 
     public Product() {}
 
-    public Product(String name, Double price, String description, String image, Integer stock) {
+    public Product(String name, Double price, String description, String image) {
         this.name = name;
         this.price = price;
         this.description = description;
         this.image = image;
-        this.stock = stock;
     }
 
     public Long getId() {
@@ -83,33 +68,5 @@ public class Product {
 
     public void setImage(String image) {
         this.image = image;
-    }
-
-    public Integer getStock() {
-        return stock;
-    }
-
-    public void setStock(Integer stock) {
-        this.stock = stock;
-    }
-
-    public Boolean getAvailable() {
-        return stock > 0;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public List<OrderItem> getOrderItems() {
-        return orderItems;
-    }
-
-    public void setOrderItems(List<OrderItem> orderItems) {
-        this.orderItems = orderItems;
     }
 }

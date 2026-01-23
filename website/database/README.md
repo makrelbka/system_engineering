@@ -1,9 +1,9 @@
 ### Описание
 - PostgreSQL база для FlowerShop.
-- SQL-скрипты и схема лежат в `website/database/`.
+- В базе хранятся товары, заказы и позиции заказов.
 
 ### Содержимое
-- `website/database/sql/` — скрипты создания БД/таблиц/представлений/процедур и стартовые данные.
+- `website/database/sql/` — скрипты создания БД/таблиц/представлений/процедур.
 - `website/database/diagrams/database-schema.dbml` — схема БД (DBML).
 
 ### Запуск

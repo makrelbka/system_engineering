@@ -29,6 +29,9 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/flowershop
       - SPRING_DATASOURCE_USERNAME=flowershop
       - SPRING_DATASOURCE_PASSWORD=flowershop
+      - LOG_PATH=/app/logs
+    volumes:
+      - ./logs:/app/logs
     depends_on:
       postgres:
         condition: service_healthy

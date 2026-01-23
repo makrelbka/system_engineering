@@ -15,9 +15,7 @@
     <artifactId>flowershop-backend</artifactId>
     <name>FlowerShop Backend</name>
     <description>Backend для системы онлайн-заказа цветов</description>
-
     <dependencies>
-
         <dependency>
             <groupId>com.flowershop</groupId>
             <artifactId>flowershop-database</artifactId>
@@ -38,10 +36,6 @@
             <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-websocket</artifactId>
-        </dependency>
     </dependencies>
 
     <build>

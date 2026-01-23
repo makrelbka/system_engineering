@@ -1,40 +1,22 @@
 package com.flowershop.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "callback_requests")
 public class CallbackRequest {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
     private String name;
-
-    @Column(nullable = false)
     private String phone;
-
-    @Column(nullable = false)
     private LocalDateTime createdAt;
-
-    @Column(nullable = false)
-    private Boolean completed = false;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        if (completed == null) {
-            completed = false;
-        }
-    }
+    private boolean completed;
 
     public CallbackRequest() {}
 
-    public CallbackRequest(String name, String phone) {
+    public CallbackRequest(Long id, String name, String phone, LocalDateTime createdAt, boolean completed) {
+        this.id = id;
         this.name = name;
         this.phone = phone;
+        this.createdAt = createdAt;
+        this.completed = completed;
     }
 
     public Long getId() {
@@ -69,11 +51,11 @@ public class CallbackRequest {
         this.createdAt = createdAt;
     }
 
-    public Boolean getCompleted() {
+    public boolean isCompleted() {
         return completed;
     }
 
-    public void setCompleted(Boolean completed) {
+    public void setCompleted(boolean completed) {
         this.completed = completed;
     }
 }

@@ -3,7 +3,7 @@
 - Сделать простой интерфейс, чтобы клиент без аккаунта мог быстро собрать заказ, а админ видел все заказы/заявки.
 
 ### 2 Внешний вид и работа
-1. Главная страница: карточки товаров (название, описание, цена, изображение, остатки).
+1. Главная страница: карточки товаров (название, описание, цена, изображение).
 2. Корзина: изменение количества/удаление, отображение суммы.
 3. Форма оформления: имя, телефон, email, адрес и кнопка “Оформить заказ”.
 4. Небольшая форма callback (имя + телефон).
@@ -12,38 +12,38 @@
 ### 3 Техническая модель
 1. Фронтенд: Vue 3 + Vite + Tailwind, подгружает каталог через `/api/products`.
 2. Бэкенд: Spring Boot, REST API, PostgreSQL, JPA.
-3. Метрики: Spring Actuator + Prometheus, Grafana отображает графики.
-4. WebSocket `/topic/products` информирует площадку о списании товара.
-5. Docker Compose для backend/frontend/postgres/prometheus/grafana.
+3. Каталог товаров хранится в базе данных.
+4. Админские аккаунты и заявки на звонок хранятся в памяти и не сохраняются в БД.
+5. Метрики: Spring Actuator + Prometheus, Grafana отображает графики.
+6. Docker Compose для backend/frontend/postgres/prometheus/grafana.
 
 ### 4 Технический функционал
 1. Работа с каталогом:
-   - `GET /api/products` – список товаров с наличием.
-   - `GET /api/products/{id}` – детальная карточка.
+   - Показать покупателю весь список товаров.
+   - Дать детальную карточку товара с описанием, ценой и фото.
 2. Заказы:
-   - `POST /api/orders` – создаёт заказ с customerName/customerPhone/customerEmail/deliveryAddress/items.
-   - `GET /api/orders` – список всех заказов (для админа).
+   - Позволить оформить заказ, собрав данные клиента, адрес и выбранные позиции.
+   - Давать админу общий список всех заказов для обработки.
 3. Callback:
-   - `POST /api/callback` – отправка заявки.
+   - Принимать короткие заявки на обратный звонок (имя и телефон).
 4. Админка:
-   - `POST /api/admin/login`
-   - `GET /api/admin/orders/pending`
-   - `GET /api/admin/orders/completed`
-   - `PUT /api/admin/orders/{id}/status`
-   - `GET /api/admin/callbacks/pending`
-   - `GET /api/admin/callbacks/completed`
-   - `PUT /api/admin/callbacks/{id}/complete`
-   - `GET /api/admin/users`, `POST /api/admin/users`, `DELETE /api/admin/users/{id}`
+   - Логин по email/паролю.
+   - Табы заказов: новые, в работе, доставляются, завершённые; возможность менять статус.
+   - Табы заявок: новые и завершённые; возможность отмечать обработанные.
+   - Управление пользователями админки: добавить/удалить.
+   - Управление товарами: добавить новый товар с фото, удалить товар.
 
 ### 5 Сущности
-- Product (id, name, description, price, image, stock, категорию).
-- Order и OrderItem со статусами (NEW → IN_PROCESS → DELIVERING → COMPLETED).
-- CallbackRequest (имя, телефон, статус).
-- User с ролью ADMIN, email и password (клиенты без учеток).
+- Product: название, описание, цена, изображение (URL или PNG).
+- Order и OrderItem со статусами: новый → в работе → доставляется → завершён.
+- CallbackRequest: имя, телефон, статус.
+- User (админ): email, пароль (клиенты без учёток).
 
 ### 6 Необходимые условия
 1. Автозапуск через Docker Compose.
 2. API отвечает не медленнее ~1 с.
-3. Логи backend записываются в `website/backend/logs/flowershop.log`.
+3. Логи backend записываются в `website/logs/flowershop.log` и включают:
+   - вход в админку и действия админа;
+   - оформление заказов, смену статусов и заявки на звонок.
 4. JWT/bcrypt не требуются, клиенты без аккаунтов.
 5. Код собирается Maven, фронт — npm/Vite, мониторинг через Prometheus/Grafana.

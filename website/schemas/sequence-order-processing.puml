@@ -16,6 +16,7 @@ actor "Администратор" as Admin
 participant "Frontend (Admin Panel)" as AdminPanel
 participant "Backend (Spring Boot)" as Backend
 participant "AdminService" as AdminService
+participant "AdminStore (in memory)" as AdminStore
 participant "OrderService" as OrderService
 database "PostgreSQL" as DB
 
@@ -27,9 +28,9 @@ activate Backend
 
 Backend -> AdminService: authenticate(email, password)
 activate AdminService
-AdminService -> DB: SELECT * FROM users WHERE email = ?
-DB --> AdminService: User data
-AdminService -> AdminService: Проверка пароля и роли ADMIN
+AdminService -> AdminStore: Поиск администратора
+AdminStore --> AdminService: Admin data
+AdminService -> AdminService: Проверка пароля
 AdminService --> Backend: User (если валиден)
 deactivate AdminService
 
@@ -51,7 +52,46 @@ deactivate Backend
 
 AdminPanel -> Admin: 3. Отображение списка заказов
 
-Admin -> AdminPanel: 4. Изменить статус заказа (id=123)
+Admin -> AdminPanel: 4. Открыть вкладку "Товары"
+AdminPanel -> Backend: GET /api/admin/products
+activate Backend
+Backend -> ProductService: getAllProducts()
+activate ProductService
+ProductService -> DB: SELECT * FROM products
+DB --> ProductService: List<Product>
+ProductService --> Backend: List<Product>
+deactivate ProductService
+Backend --> AdminPanel: 200 OK + Products list
+deactivate Backend
+
+Admin -> AdminPanel: 5. Добавить новый товар
+AdminPanel -> Backend: POST /api/admin/products
+note right
+  Body: { name, price, description, image }
+end note
+activate Backend
+Backend -> ProductService: createProduct(...)
+activate ProductService
+ProductService -> DB: INSERT INTO products
+DB --> ProductService: Product
+ProductService --> Backend: Product
+deactivate ProductService
+Backend --> AdminPanel: 200 OK
+deactivate Backend
+
+Admin -> AdminPanel: 6. Удалить товар
+AdminPanel -> Backend: DELETE /api/admin/products/{id}
+activate Backend
+Backend -> ProductService: deleteProduct(id)
+activate ProductService
+ProductService -> DB: DELETE FROM products WHERE id = ?
+DB --> ProductService: OK
+ProductService --> Backend: Success
+deactivate ProductService
+Backend --> AdminPanel: 200 OK
+deactivate Backend
+
+Admin -> AdminPanel: 7. Изменить статус заказа (id=123)
 AdminPanel -> Backend: PUT /api/admin/orders/123/status
 note right
   Body: { "status": "IN_PROCESS" }
@@ -68,9 +108,9 @@ deactivate AdminService
 Backend --> AdminPanel: 200 OK
 deactivate Backend
 
-AdminPanel -> Admin: 5. Статус обновлен
+AdminPanel -> Admin: 8. Статус обновлен
 
-Admin -> AdminPanel: 6. Пометить заказ как "Выполнен"
+Admin -> AdminPanel: 9. Пометить заказ как "Выполнен"
 AdminPanel -> Backend: PUT /api/admin/orders/123/status
 note right
   Body: { "status": "COMPLETED" }
@@ -87,5 +127,5 @@ deactivate AdminService
 Backend --> AdminPanel: 200 OK
 deactivate Backend
 
-AdminPanel -> Admin: 7. Заказ перемещен в "Выполненные"
+AdminPanel -> Admin: 10. Заказ перемещен в "Выполненные"
 @enduml

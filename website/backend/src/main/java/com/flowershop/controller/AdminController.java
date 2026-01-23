@@ -2,8 +2,10 @@ package com.flowershop.controller;
 
 import com.flowershop.model.CallbackRequest;
 import com.flowershop.model.Order;
+import com.flowershop.model.Product;
 import com.flowershop.model.User;
 import com.flowershop.service.AdminService;
+import com.flowershop.service.ProductService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,9 +17,11 @@ import java.util.Map;
 @CrossOrigin(origins = "http://localhost:5173")
 public class AdminController {
     private final AdminService adminService;
+    private final ProductService productService;
 
-    public AdminController(AdminService adminService) {
+    public AdminController(AdminService adminService, ProductService productService) {
         this.adminService = adminService;
+        this.productService = productService;
     }
 
     @PostMapping("/login")
@@ -106,6 +110,36 @@ public class AdminController {
         try {
             CallbackRequest request = adminService.markCallbackCompleted(id);
             return ResponseEntity.ok(request);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/products")
+    public ResponseEntity<List<Product>> getAllProducts() {
+        return ResponseEntity.ok(productService.getAllProducts());
+    }
+
+    @PostMapping("/products")
+    public ResponseEntity<?> createProduct(@RequestBody Map<String, Object> data) {
+        try {
+            String name = data.get("name") != null ? data.get("name").toString() : null;
+            String description = data.get("description") != null ? data.get("description").toString() : null;
+            String image = data.get("image") != null ? data.get("image").toString() : null;
+            Double price = data.get("price") != null ? Double.valueOf(data.get("price").toString()) : null;
+
+            Product product = productService.createProduct(name, price, description, image);
+            return ResponseEntity.ok(product);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/products/{id}")
+    public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
+        try {
+            productService.deleteProduct(id);
+            return ResponseEntity.ok(Map.of("success", true));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

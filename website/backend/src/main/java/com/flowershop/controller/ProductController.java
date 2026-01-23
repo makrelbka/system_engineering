@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/products")
@@ -28,25 +27,5 @@ public class ProductController {
         return productService.getProductById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
-    }
-
-    @PostMapping("/{id}/decrease")
-    public ResponseEntity<?> decreaseStock(
-            @PathVariable Long id,
-            @RequestBody Map<String, Object> request) {
-        try {
-            Integer quantity = (Integer) request.get("quantity");
-            String customerName = (String) request.get("customerName");
-            String customerEmail = (String) request.get("customerEmail");
-
-            if (quantity == null || customerName == null || customerEmail == null) {
-                return ResponseEntity.badRequest().body("Необходимы: quantity, customerName, customerEmail");
-            }
-
-            productService.decreaseStock(id, quantity, customerName, customerEmail);
-            return ResponseEntity.ok(Map.of("success", true, "message", "Товар списан"));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
     }
 }

@@ -4,9 +4,10 @@ import com.flowershop.model.Order;
 import com.flowershop.model.OrderItem;
 import com.flowershop.model.Product;
 import com.flowershop.repository.OrderRepository;
-import com.flowershop.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,15 +16,13 @@ import java.util.Optional;
 
 @Service
 public class OrderService {
+    private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
     private final OrderRepository orderRepository;
-    private final ProductRepository productRepository;
     private final ProductService productService;
 
     public OrderService(OrderRepository orderRepository,
-                       ProductRepository productRepository,
                        ProductService productService) {
         this.orderRepository = orderRepository;
-        this.productRepository = productRepository;
         this.productService = productService;
     }
 
@@ -44,18 +43,14 @@ public class OrderService {
             Long productId = Long.valueOf(itemData.get("productId").toString());
             Integer quantity = Integer.valueOf(itemData.get("quantity").toString());
 
-            Product product = productRepository.findById(productId)
+            Product product = productService.getProductById(productId)
                     .orElseThrow(() -> new RuntimeException("Товар не найден: " + productId));
-
-            if (product.getStock() < quantity) {
-                throw new RuntimeException("Недостаточно товара '" + product.getName() + "'. Доступно: " + product.getStock());
-            }
-
-            productService.decreaseStock(productId, quantity, customerName, customerEmail);
 
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
-            orderItem.setProduct(product);
+            orderItem.setProductId(product.getId());
+            orderItem.setProductName(product.getName());
+            orderItem.setProductImage(product.getImage());
             orderItem.setQuantity(quantity);
             orderItem.setPrice(product.getPrice());
 
@@ -66,7 +61,21 @@ public class OrderService {
         order.setItems(orderItems);
         order.setTotalPrice(totalPrice);
 
-        return orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+        String itemsSummary = orderItems.stream()
+                .map(item -> item.getProductName() + " x" + item.getQuantity())
+                .reduce((left, right) -> left + ", " + right)
+                .orElse("-");
+        logger.info("Создан заказ #{}: клиент={}, email={}, телефон={}, адрес={}, сумма=${}, товары=[{}]",
+                savedOrder.getId(),
+                savedOrder.getCustomerName(),
+                savedOrder.getCustomerEmail(),
+                savedOrder.getCustomerPhone(),
+                savedOrder.getDeliveryAddress(),
+                String.format("%.2f", savedOrder.getTotalPrice()),
+                itemsSummary);
+
+        return savedOrder;
     }
 
     public List<Order> getAllOrders() {

@@ -15,9 +15,14 @@ public class OrderItem {
     @JsonIgnore
     private Order order;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    @Column(nullable = false)
+    private Long productId;
+
+    @Column(nullable = false)
+    private String productName;
+
+    @Column(length = 500)
+    private String productImage;
 
     @Column(nullable = false)
     private Integer quantity;
@@ -27,9 +32,12 @@ public class OrderItem {
 
     public OrderItem() {}
 
-    public OrderItem(Order order, Product product, Integer quantity, Double price) {
+    public OrderItem(Order order, Long productId, String productName, String productImage,
+                     Integer quantity, Double price) {
         this.order = order;
-        this.product = product;
+        this.productId = productId;
+        this.productName = productName;
+        this.productImage = productImage;
         this.quantity = quantity;
         this.price = price;
     }
@@ -50,12 +58,28 @@ public class OrderItem {
         this.order = order;
     }
 
-    public Product getProduct() {
-        return product;
+    public Long getProductId() {
+        return productId;
     }
 
-    public void setProduct(Product product) {
-        this.product = product;
+    public void setProductId(Long productId) {
+        this.productId = productId;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public String getProductImage() {
+        return productImage;
+    }
+
+    public void setProductImage(String productImage) {
+        this.productImage = productImage;
     }
 
     public Integer getQuantity() {

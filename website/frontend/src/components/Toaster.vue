@@ -1,12 +1,12 @@
 <template>
   <Teleport to="body">
-    <div class="fixed top-4 right-4 z-[100] flex flex-col gap-2">
+    <div class="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none">
       <TransitionGroup name="toast" tag="div">
         <div
           v-for="toast in toasts"
           :key="toast.id"
           :class="toastClasses(toast.type)"
-          class="px-4 py-3 rounded-md shadow-lg border-2 border-black min-w-[300px] flex items-center gap-2"
+          class="px-4 py-3 rounded-md shadow-lg border-2 border-black min-w-[300px] flex items-center gap-2 pointer-events-auto"
         >
           <span v-if="toast.type === 'success'" class="text-green-600">✓</span>
           <span v-else-if="toast.type === 'error'" class="text-red-600">✕</span>
@@ -44,11 +44,11 @@ const toastClasses = (type) => {
 
 .toast-enter-from {
   opacity: 0;
-  transform: translateX(100%);
+  transform: translateY(-12px) scale(0.98);
 }
 
 .toast-leave-to {
   opacity: 0;
-  transform: translateX(100%);
+  transform: translateY(-12px) scale(0.98);
 }
 </style>
